@@ -67,6 +67,9 @@ if [[ "${WRT_PROFILE^^}" == "PLUS" ]]; then
 	UPDATE_PACKAGE "openclash" "vernesong/OpenClash" "master" "pkg"
 	UPDATE_PACKAGE "passwall" "Openwrt-Passwall/openwrt-passwall" "main" "pkg"
 	UPDATE_PACKAGE "passwall2" "Openwrt-Passwall/openwrt-passwall2" "main" "pkg"
+	# 分区扩容与网络唤醒：源码仅 PLUS 版拉取，PURE 中同名 =y 配置因无源码自动失效
+	UPDATE_PACKAGE "partexp" "sirpdboy/luci-app-partexp" "main"
+	UPDATE_PACKAGE "viking" "ones20250/packages" "main" "" "luci-app-timewol luci-app-wolplus"
 fi
 
 #UPDATE_PACKAGE "mosdns" "sbwml/luci-app-mosdns" "v5" "" "v2dat"

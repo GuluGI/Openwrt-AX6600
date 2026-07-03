@@ -100,7 +100,7 @@ jobs:
           esac
           echo "WRT_PROFILE=$WRT_PROFILE_UPPER" >> $GITHUB_ENV
           if [[ "$WRT_PROFILE_UPPER" == "PLUS" ]]; then
-            echo "WRT_PROFILE_DESC=Plus 版，预装 Docker/Dockerman、PassWall/PassWall2、OpenClash、AdGuard Home，刷完即用" >> $GITHUB_ENV
+            echo "WRT_PROFILE_DESC=Plus 版，预装 Docker/Dockerman、PassWall/PassWall2、OpenClash、AdGuard Home 及分区扩容、网络唤醒等实用插件，刷完即用" >> $GITHUB_ENV
           else
             echo "WRT_PROFILE_DESC=纯净版，轻量稳定，仅含基础网络与常用管理插件，扩展插件按需自行安装" >> $GITHUB_ENV
           fi

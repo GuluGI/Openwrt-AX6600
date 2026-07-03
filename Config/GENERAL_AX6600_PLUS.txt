@@ -63,3 +63,7 @@ CONFIG_PACKAGE_dnsmasq_full_ipset=n
 # AdGuard Home
 CONFIG_PACKAGE_luci-app-adguardhome=y
 CONFIG_PACKAGE_adguardhome=y
+
+# 实用工具（对应源码由 Packages.sh 在 PLUS 版克隆）
+CONFIG_PACKAGE_luci-app-partexp=y
+CONFIG_PACKAGE_luci-app-wolplus=y
