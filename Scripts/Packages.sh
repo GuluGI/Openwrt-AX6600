@@ -136,3 +136,8 @@ UPDATE_VERSION() {
 
 #UPDATE_VERSION "软件包名" "测试版，true，可选，默认为否"
 #UPDATE_VERSION "sing-box"
+
+# 增加 iStore 应用商店
+mkdir -p package/istore
+rm -rf package/istore/istore
+git clone --depth 1 https://github.com/istoreos/istore.git package/istore/istore
