@@ -1,6 +1,58 @@
 #!/bin/bash
 
-#安装和更新软件包
+# 查找 OpenWrt 根目录（包含 scripts/feeds 和 feeds.conf.default 的目录）
+find_openwrt_root() {
+	local d="$PWD"
+	while [ "$d" != "/" ]; do
+		if [ -x "$d/scripts/feeds" ] && [ -f "$d/feeds.conf.default" ]; then
+			echo "$d"
+			return 0
+		fi
+		d=$(dirname "$d")
+	done
+	return 1
+}
+
+OPENWRT_ROOT=$(find_openwrt_root || true)
+
+# 通过 feeds 方式集成 iStore
+install_istore() {
+	local CUR_DIR="$PWD"
+	local ROOT="${OPENWRT_ROOT:-}"
+
+	if [ -z "$ROOT" ] || [ ! -x "$ROOT/scripts/feeds" ]; then
+		echo "未找到 OpenWrt 根目录（scripts/feeds），跳过 iStore 集成。"
+		return 1
+	fi
+
+	echo " "
+	echo "正在集成 iStore..."
+
+	if ! grep -q '^src-git istore ' "$ROOT/feeds.conf.default"; then
+		echo 'src-git istore https://github.com/linkease/istore;main' >> "$ROOT/feeds.conf.default"
+		echo "已追加 iStore feed。"
+	else
+		echo "iStore feed 已存在，跳过追加。"
+	fi
+
+	cd "$ROOT" || return 1
+
+	./scripts/feeds update istore || {
+		cd "$CUR_DIR"
+		echo "feeds update istore 失败。"
+		return 1
+	}
+
+	./scripts/feeds install -d y -p istore luci-app-store || {
+		cd "$CUR_DIR"
+		echo "feeds install luci-app-store 失败。"
+		return 1
+	}
+
+	cd "$CUR_DIR"
+	echo "iStore 源码集成完成。"
+}
+
 UPDATE_PACKAGE() {
 	local PKG_NAME=$1
 	local PKG_REPO=$2
@@ -61,7 +113,23 @@ UPDATE_PACKAGE() {
 #UPDATE_PACKAGE "homeproxy" "ones20250/homeproxy" "master"
 #UPDATE_PACKAGE "momo" "nikkinikki-org/OpenWrt-momo" "main"
 #UPDATE_PACKAGE "nikki" "nikkinikki-org/OpenWrt-nikki" "main"
+
 if [[ "${WRT_PROFILE^^}" == "PLUS" ]]; then
+	# 集成 iStore：feeds 方式拉取 luci-app-store，并自动写入 PLUS 配置
+	install_istore
+
+	ISTORE_CONFIG="$OPENWRT_ROOT/Config/GENERAL_AX6600_PLUS.txt"
+	if [ -n "$OPENWRT_ROOT" ] && [ -f "$ISTORE_CONFIG" ]; then
+		if ! grep -q '^CONFIG_PACKAGE_luci-app-store=y$' "$ISTORE_CONFIG"; then
+			echo 'CONFIG_PACKAGE_luci-app-store=y' >> "$ISTORE_CONFIG"
+			echo "已将 CONFIG_PACKAGE_luci-app-store=y 写入 $ISTORE_CONFIG"
+		else
+			echo "配置文件中已存在 CONFIG_PACKAGE_luci-app-store=y"
+		fi
+	else
+		echo "未找到 $ISTORE_CONFIG，请手动在对应配置文件中加入：CONFIG_PACKAGE_luci-app-store=y"
+	fi
+
 	# LuCI 入口随 "pkg" 通配一并提取，依赖包（xray、sing-box、geodata 等）
 	# 由 passwall_packages feed 提供，避免同名包双重定义。
 	UPDATE_PACKAGE "openclash" "vernesong/OpenClash" "master" "pkg"
@@ -136,8 +204,3 @@ UPDATE_VERSION() {
 
 #UPDATE_VERSION "软件包名" "测试版，true，可选，默认为否"
 #UPDATE_VERSION "sing-box"
-
-# 增加 iStore 应用商店 使用国内镜像，规避github访问失败
-mkdir -p package/istore
-rm -rf package/istore/istore
-git clone --depth 1 https://gitcode.com/gh_mirrors/is/istore.git package/istore/istore
