@@ -77,20 +77,18 @@ CONFIG_PACKAGE_ddns-scripts-aliyun=y
 CONFIG_PACKAGE_ddns-scripts-dnspod=y
 CONFIG_PACKAGE_ddns-scripts-cloudflare=y
 
-
 # USB 打印机支持（issue #11 用户请求；滚动内核无法事后 opkg 装 kmod，须随固件集成）
 CONFIG_PACKAGE_kmod-usb-printer=y
 # p910nd 打印服务器及其管理界面
 CONFIG_PACKAGE_p910nd=y
 CONFIG_PACKAGE_luci-app-p910nd=y
 
-# iStore应用商店
-CONFIG_PACKAGE_luci-app-istore=y
-CONFIG_PACKAGE_luci-i18n-istore-zh-cn=y
-CONFIG_PACKAGE_istore-core=y
-CONFIG_PACKAGE_istore-feed=y
-# 依赖包，防止页面空白
+# iStore 应用商店（通过 Packages.sh 的 feeds 方式集成）
+# 唯一的正确包名：
+CONFIG_PACKAGE_luci-app-store=y
+# 19.07+ 固件的必需依赖：
+CONFIG_PACKAGE_luci-compat=y
+# 保证在线安装/更新时证书与网络请求正常：
 CONFIG_PACKAGE_curl=y
 CONFIG_PACKAGE_ca-certificates=y
-CONFIG_PACKAGE_ca-bundle=y
-CONFIG_PACKAGE_luci-compat=y
+# 注意：不要额外加入 luci-lib-taskd / luci-lib-xterm，已知会导致编译报错。
